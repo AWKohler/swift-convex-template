@@ -1,0 +1,17 @@
+# ── Apple / Xcode ───────────────────────────────────────────────
+.DS_Store
+*.xcworkspace
+*.xcodeproj/          # regenerated from project.yml by `make generate`
+xcuserdata/
+.build/
+DerivedData/
+deploy.sh
+
+# ── Convex backend ──────────────────────────────────────────────
+node_modules/
+convex/_generated/    # written back by the deploy worker
+
+# NOTE: Package.resolved is intentionally COMMITTED (see project.yml).
+# Pinning the resolved ConvexMobile binary is what lets the remote-Mac
+# build resolve from a pre-warmed cache instead of the network. Do not
+# add *.resolved to this file.

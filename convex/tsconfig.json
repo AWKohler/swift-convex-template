@@ -1,0 +1,20 @@
+{
+  /* This TypeScript project config is for the Convex functions directory.
+     It is part of the deploy bundle Botflow sends to the Convex worker. */
+  "compilerOptions": {
+    "allowJs": true,
+    "strict": true,
+    "moduleResolution": "Bundler",
+    "jsx": "react-jsx",
+    "skipLibCheck": true,
+    "allowSyntheticDefaultImports": true,
+    "target": "ESNext",
+    "lib": ["ES2021", "dom"],
+    "forceConsistentCasingInFileNames": true,
+    "module": "ESNext",
+    "isolatedModules": true,
+    "noEmit": true
+  },
+  "include": ["./**/*"],
+  "exclude": ["./_generated"]
+}

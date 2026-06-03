@@ -1,0 +1,123 @@
+name: MyApp
+
+# ─────────────────────────────────────────────
+# Global XcodeGen options
+# Botflow injects features by modifying Sources/
+# and re-running `make generate` — never edit
+# the .xcodeproj directly.
+# ─────────────────────────────────────────────
+options:
+  bundleIdPrefix: com.botflow
+  deploymentTarget:
+    iOS: "18.0"
+  xcodeVersion: "16.0"
+  createIntermediateGroups: true
+  groupSortPosition: top
+  defaultConfig: Debug
+
+# ─────────────────────────────────────────────
+# Swift Package dependencies
+#
+# ConvexMobile is the official Convex Swift client
+# (get-convex/convex-swift). It wraps the Convex
+# Rust client and ships a prebuilt binary, so it
+# is PINNED to an exact version. The matching
+# Package.resolved is committed alongside this
+# spec and MUST stay committed — the remote-Mac
+# build relies on a pre-warmed, frozen resolution
+# so a simulator build never resolves from the
+# network in the hot loop.
+#
+# To bump the SDK: change exactVersion, run
+# `xcodegen generate` + `xcodebuild -resolvePackageDependencies`
+# locally, and commit the updated Package.resolved.
+# ─────────────────────────────────────────────
+packages:
+  ConvexMobile:
+    url: https://github.com/get-convex/convex-swift
+    exactVersion: "0.8.1"
+
+# ─────────────────────────────────────────────
+# Build configurations
+# ─────────────────────────────────────────────
+configs:
+  Debug: debug
+  Release: release
+
+# ─────────────────────────────────────────────
+# Project-wide build settings
+# ─────────────────────────────────────────────
+settings:
+  base:
+    SWIFT_VERSION: "6.0"
+    IPHONEOS_DEPLOYMENT_TARGET: "18.0"
+    ALWAYS_SEARCH_USER_PATHS: NO
+    CLANG_ENABLE_MODULES: YES
+    ENABLE_USER_SCRIPT_SANDBOXING: NO
+
+    # ConvexMobile ships a Rust xcframework (libconvexmobile-rs) whose
+    # iOS-Simulator slice is arm64-only — there is no x86_64 simulator
+    # slice. Botflow's controller and Simulator are both Apple Silicon
+    # (arm64), so we exclude x86_64 for the simulator. Without this the
+    # build fails: "missing architecture(s) required by this target (x86_64)".
+    EXCLUDED_ARCHS[sdk=iphonesimulator*]: x86_64
+  configs:
+    Debug:
+      DEBUG_INFORMATION_FORMAT: dwarf
+      SWIFT_OPTIMIZATION_LEVEL: "-Onone"
+      SWIFT_ACTIVE_COMPILATION_CONDITIONS: DEBUG
+    Release:
+      DEBUG_INFORMATION_FORMAT: dwarf-with-dsym
+      SWIFT_OPTIMIZATION_LEVEL: "-O"
+      COPY_PHASE_STRIP: NO
+
+# ─────────────────────────────────────────────
+# Application target
+# Botflow AI will scaffold new targets (e.g.
+# widgets, extensions) as additional entries
+# here, then re-run `make generate`.
+# ─────────────────────────────────────────────
+targets:
+  MyApp:
+    type: application
+    platform: iOS
+    deploymentTarget: "18.0"
+
+    # Source files — all .swift files under Sources/
+    # are automatically included by XcodeGen.
+    sources:
+      - path: Sources
+        type: group
+
+    # Asset catalogs and other static resources
+    resources:
+      - path: Resources
+
+    # Swift Package products linked into the app.
+    dependencies:
+      - package: ConvexMobile
+        product: ConvexMobile
+
+    settings:
+      base:
+        PRODUCT_NAME: MyApp
+        PRODUCT_BUNDLE_IDENTIFIER: com.botflow.myapp
+        DEVELOPMENT_TEAM: ""               # Set your team ID here or via CI env
+
+        # Modern Xcode-managed Info.plist (no separate file needed)
+        GENERATE_INFOPLIST_FILE: YES
+        INFOPLIST_KEY_CFBundleDisplayName: MyApp
+        INFOPLIST_KEY_NSHumanReadableCopyright: ""
+        INFOPLIST_KEY_UIApplicationSceneManifest_Generation: YES
+        INFOPLIST_KEY_UILaunchScreen_Generation: YES
+        INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone: UIInterfaceOrientationPortrait
+        INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad: >-
+          UIInterfaceOrientationPortrait
+          UIInterfaceOrientationPortraitUpsideDown
+          UIInterfaceOrientationLandscapeLeft
+          UIInterfaceOrientationLandscapeRight
+
+        SWIFT_VERSION: "6.0"
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+        ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME: AccentColor
+        TARGETED_DEVICE_FAMILY: "1,2"     # iPhone + iPad

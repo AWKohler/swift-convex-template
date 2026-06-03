@@ -1,0 +1,9 @@
+{
+  "name": "myapp-convex-backend",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Convex backend for a Botflow Swift app. The Swift client lives in Sources/; this declares the Convex toolchain version for the deploy pipeline.",
+  "dependencies": {
+    "convex": "^1.31.4"
+  }
+}
