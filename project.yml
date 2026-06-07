@@ -110,7 +110,15 @@ targets:
         INFOPLIST_KEY_NSHumanReadableCopyright: ""
         INFOPLIST_KEY_UIApplicationSceneManifest_Generation: YES
         INFOPLIST_KEY_UILaunchScreen_Generation: YES
-        INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone: UIInterfaceOrientationPortrait
+        # All orientations enabled so Botflow's preview orientation toggle can
+        # rotate the running app. UIRequiresFullScreen=YES is required on iPad —
+        # in windowed/Stage-Manager mode iPadOS rejects requestGeometryUpdate
+        # (UISceneErrorDomain 101). Generated apps can narrow these later.
+        INFOPLIST_KEY_UIRequiresFullScreen: YES
+        INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone: >-
+          UIInterfaceOrientationPortrait
+          UIInterfaceOrientationLandscapeLeft
+          UIInterfaceOrientationLandscapeRight
         INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad: >-
           UIInterfaceOrientationPortrait
           UIInterfaceOrientationPortraitUpsideDown
