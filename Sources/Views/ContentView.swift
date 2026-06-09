@@ -13,7 +13,43 @@
 
 import SwiftUI
 
+// Root view. When auth is enabled (`setupAuth` has run) it gates the app behind
+// the Convex auth state; otherwise it shows the demo directly.
 struct ContentView: View {
+    @State private var auth = AuthStore()
+
+    var body: some View {
+        Group {
+            if !ConvexConfig.authEnabled {
+                DemoFeed(auth: nil)
+            } else {
+                switch auth.state {
+                case .loading:   AuthLoadingView()
+                case .signedOut: SignInView(auth: auth)
+                case .signedIn:  DemoFeed(auth: auth)
+                }
+            }
+        }
+        .task {
+            // Silent refresh-token re-auth on launch (no browser).
+            if ConvexConfig.authEnabled { await auth.restore() }
+        }
+    }
+}
+
+private struct AuthLoadingView: View {
+    var body: some View {
+        ZStack {
+            Color.black.ignoresSafeArea()
+            ProgressView().tint(.white)
+        }
+    }
+}
+
+struct DemoFeed: View {
+    /// Non-nil when auth is enabled — drives the Sign-out affordance.
+    var auth: AuthStore?
+
     @State private var store = ItemsStore()
     @State private var draft: String = ""
     @State private var heroVisible = false
@@ -34,10 +70,35 @@ struct ContentView: View {
                     .padding(.horizontal, 20)
                     .padding(.bottom, 28)
             }
+
+            if let auth {
+                signOutBar(auth)
+            }
         }
         .task { store.start() }
         .onAppear {
             withAnimation(.spring(duration: 0.7, bounce: 0.3)) { heroVisible = true }
+        }
+    }
+
+    // ── Sign out ─────────────────────────────────────────────────
+
+    private func signOutBar(_ auth: AuthStore) -> some View {
+        VStack {
+            HStack {
+                Spacer()
+                Button("Sign out") {
+                    Task { await auth.signOut() }
+                }
+                .font(.system(size: 13, weight: .medium, design: .rounded))
+                .foregroundStyle(Color.white.opacity(0.55))
+                .padding(.horizontal, 12)
+                .padding(.vertical, 6)
+                .background(Capsule().strokeBorder(Color.white.opacity(0.12), lineWidth: 1))
+            }
+            .padding(.top, 16)
+            .padding(.trailing, 20)
+            Spacer()
         }
     }
 
@@ -175,5 +236,5 @@ struct ContentView: View {
 }
 
 #Preview {
-    ContentView()
+    DemoFeed(auth: nil)
 }
