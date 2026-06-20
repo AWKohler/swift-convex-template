@@ -74,10 +74,30 @@ To bump the SDK: edit `exactVersion` in `project.yml`, run `make generate` +
 
 ## Auth
 
-This template ships **un-authenticated** (v1). To add auth, replace
-`ConvexClient` with `ConvexClientWithAuth` and an `AuthProvider`
-(e.g. Clerk via `clerk-convex-swift`, or `convex-swift-auth0`). Convex Auth's
-own password flow has no first-party Swift `AuthProvider`, so it is out of scope.
+The template ships **un-authenticated by default** and turns auth on without a
+template swap. When Botflow runs `setupAuth` for the project it configures
+`@convex-dev/auth` on the deployment (the same backend the web projects use) and
+flips `ConvexConfig.authEnabled` to `true`; the auth scaffolding below then
+activates.
+
+Instead of a native sign-in form, the app opens the **Convex Auth password flow
+in an in-app browser** (`ASWebAuthenticationSession`) — a page served from this
+deployment's own `*.convex.site` origin. That page signs in and redirects back to
+`botflowauth://auth-callback#token=…&refresh=…`; the app stores the refresh token
+in the Keychain and hands the JWT to `ConvexClientWithAuth`. Because the web page
+is the form, the `@convex-dev/auth` backend carries over from the web template
+unchanged — no first-party Swift `AuthProvider` (Clerk/Auth0) is required.
+
+- `Sources/Core/BotflowAuthProvider.swift` — the `AuthProvider`: in-app-browser
+  sign-in, silent refresh via the `auth:signIn` action, Keychain persistence.
+- `Sources/Core/Keychain.swift` — refresh-token storage.
+- `Sources/ViewModels/AuthStore.swift` — observable auth state for the UI.
+- `Sources/Views/SignInView.swift` — the button that launches sign-in.
+- `Sources/Core/ConvexClient+Shared.swift` — selects `ConvexClientWithAuth` when
+  `authEnabled`.
+
+OAuth (Google) and magic-link are out of scope for now (the hosted page is built
+so the OAuth redirect can be added later).
 
 ## Verified
 

@@ -29,7 +29,7 @@ final class ItemsStore {
         isLoading = true
         subscription = Task { [weak self] in
             let stream = Convex.shared
-                .subscribe(to: "items:list", yielding: [Item].self)
+                .subscribe(to: ConvexAPI.Items.list, yielding: [Item].self)
                 .values
             do {
                 for try await latest in stream {
@@ -49,7 +49,7 @@ final class ItemsStore {
         let trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmed.isEmpty else { return }
         do {
-            try await Convex.shared.mutation("items:add", with: ["text": trimmed])
+            try await Convex.shared.mutation(ConvexAPI.Items.add, with: ["text": trimmed])
         } catch {
             lastError = String(describing: error)
         }
