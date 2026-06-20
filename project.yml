@@ -108,6 +108,11 @@ targets:
         GENERATE_INFOPLIST_FILE: YES
         INFOPLIST_KEY_CFBundleDisplayName: MyApp
         INFOPLIST_KEY_NSHumanReadableCopyright: ""
+        # Export-compliance: standard exempt encryption only (HTTPS/TLS). Without
+        # this, every TestFlight/App Store build stalls on the "Missing Compliance"
+        # prompt. Apps that add custom or otherwise non-exempt cryptography must
+        # change this to YES and complete Apple's compliance questionnaire.
+        ITSAppUsesNonExemptEncryption: NO
         INFOPLIST_KEY_UIApplicationSceneManifest_Generation: YES
         INFOPLIST_KEY_UILaunchScreen_Generation: YES
         # All orientations enabled so Botflow's preview orientation toggle can
